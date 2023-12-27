@@ -6,12 +6,18 @@ export class BlockData {
   constructor(width: number, height: number) {
     this.width = width
     this.height = height
-    this.data = Array(height).map((_) => Array(width).fill(0))
+    this.data = Array(height).fill(0).map((_) => Array(width).fill(0))
   }
 
   public getBlock(x: number, z: number) {
     if (x < 0 || x >= this.width || z < 0 || z >= this.height) return null
     return this.data[this.height - z - 1][x]
+  }
+
+  public setBlock(x: number, z: number, block: number) {
+    if (x < 0 || x >= this.width || z < 0 || z >= this.height) return false
+    this.data[this.height - z - 1][x] = block
+    return true
   }
 }
 

@@ -6,12 +6,20 @@ const width = 8
 const height = 6
 
 const blocks = new BlockData(width, height)
+// const data = [
+//   [0, 0, 0, 0, 0, 0, 3, 3],
+//   [0, 0, 3, 3, 3, 3, 2, 2],
+//   [3, 3, 2, 2, 2, 2, 2, 2],
+//   [2, 2, 2, 2, 2, 2, 2, 2],
+//   [1, 1, 1, 1, 1, 1, 1, 1],
+//   [1, 1, 1, 1, 1, 1, 1, 1],
+// ]
 const data = [
-  [0, 0, 0, 0, 0, 0, 3, 3],
-  [0, 0, 3, 3, 3, 3, 2, 2],
-  [3, 3, 2, 2, 2, 2, 2, 2],
-  [2, 2, 2, 2, 2, 2, 2, 2],
   [1, 1, 1, 1, 1, 1, 1, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1],
+  [1, 1, 1, 1, 1, 3, 3, 3],
+  [1, 1, 1, 1, 2, 3, 3, 1],
   [1, 1, 1, 1, 1, 1, 1, 1],
 ]
 blocks.data = data
@@ -117,7 +125,8 @@ function emptyRectangle(): Rectangle {
   }
 }
 
-let rectangle = emptyRectangle()
+const rectangles: Rectangle[] = []
+let currentRectangle = emptyRectangle()
 
 function drawRectangle(rectangle: Rectangle) {
   const { x, z, dx, dz } = rectangle
@@ -132,7 +141,7 @@ function attemptGrowRectangle(rectangle: Rectangle) {
   if (canGrowX) {
     // assume rectangle has height 1
     let canGrow = true
-    if (blocks.getBlock(x + dx, z) !== blockId) canGrow = false
+    if (blocks.getBlock(x + dx, z) !== blockId || processed.getBlock(x + dx, z)) canGrow = false
 
     if (canGrow) {
       rectangle.dx++
@@ -143,7 +152,7 @@ function attemptGrowRectangle(rectangle: Rectangle) {
   } else if (canGrowZ) {
     let canGrow = true
     for (let xi = x; xi < x + dx; xi++) {
-      if (blocks.getBlock(xi, z + dz) !== blockId) canGrow = false
+      if (blocks.getBlock(xi, z + dz) !== blockId || processed.getBlock(xi, z + dz)) canGrow = false
     }
 
     if (canGrow) {
@@ -152,16 +161,63 @@ function attemptGrowRectangle(rectangle: Rectangle) {
       rectangle.canGrowZ = false
       rectangle.color = 'lime'
     }
+  } else {
+    for (let i = x; i < x + dx; i++) {
+      for (let j = z; j < z + dz; j++) {
+        processed.setBlock(i, j, 1)
+      }
+    }
+    return false
   }
+
+  return true
+}
+
+function startRectangle(x: number, z: number): Rectangle {
+  const blockId = blocks.getBlock(x, z)
+
+  const rectangle = emptyRectangle()
+  rectangle.x = x
+  rectangle.z = z
+  rectangle.blockId = blockId
+
+  return rectangle
+}
+
+const processed = new BlockData(width, height)
+
+function newRectangle(oldRectangle: Rectangle) {
+  let x = 0;
+  let z = 0;
+
+  // while (!blocks.getBlock(x, z)) {
+  if (oldRectangle.x + oldRectangle.dx === width) {
+    x = 0;
+    z = oldRectangle.z + oldRectangle.dz
+  } else {
+    x = oldRectangle.x + oldRectangle.dx
+    z = oldRectangle.z
+  }
+
+  while (blocks.getBlock(x, z) === 0 || processed.getBlock(x, z)) {
+    x++
+  }
+
+  return startRectangle(x, z)
 }
 
 function animate() {
   // requestAnimationFrame(animate);
   c.clearRect(0, 0, canvas.width, canvas.height);
   renderBlocks()
-  drawRectangle(rectangle)
-  attemptGrowRectangle(rectangle)
-  // drawTriangles()
+  rectangles.forEach(rect => drawRectangle(rect))
+  drawRectangle(currentRectangle)
+
+  const grew = attemptGrowRectangle(currentRectangle)
+  if (!grew) {
+    rectangles.push(currentRectangle)
+    currentRectangle = newRectangle(currentRectangle)
+  }
 
   setTimeout(animate, 100)
 }
