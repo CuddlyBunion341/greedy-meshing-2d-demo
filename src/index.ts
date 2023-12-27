@@ -51,17 +51,17 @@ function drawTriangles() {
   for (let i = 0; i < triangles.length; i++) {
     const triangle = triangles[i]
     drawTriangle(triangle)
-    if (i % 2 !== 0) {
-      c.fillStyle = 'rgba(0,0,0,0.5)'
-      c.fill()
-    }
+    // if (i % 2 !== 0) {
+    //   c.fillStyle = 'rgba(0,0,0,0.5)'
+    //   c.fill()
+    // }
   }
 }
 
 function drawTriangle(points: number[][]) {
   c.beginPath()
-  const lineTo = (point: number[]) => c.lineTo(point[0] * cellSize, point[1] * cellSize)
-  const moveTo = (point: number[]) => c.moveTo(point[0] * cellSize, point[1] * cellSize)
+  const lineTo = (point: number[]) => c.lineTo(point[0] * cellSize, (height - point[1]) * cellSize)
+  const moveTo = (point: number[]) => c.moveTo(point[0] * cellSize, (height - point[1]) * cellSize)
 
   moveTo(points[0])
 
@@ -70,6 +70,8 @@ function drawTriangle(points: number[][]) {
   }
 
   lineTo(points[0])
+  c.strokeStyle = 'black'
+  c.lineWidth = 1
   c.stroke()
 }
 
@@ -213,7 +215,14 @@ function newRectangle(oldRectangle: Rectangle): Rectangle {
   return startRectangle(x, z)
 }
 
-let meshingDone = false
+function calculateVertices() {
+  console.group(rectangles)
+  rectangles.forEach((rectangle) => {
+    const { x, z, dx, dz } = rectangle
+
+    triangles.push(...getQuad(x, z, dx, dz))
+  })
+}
 
 function animate() {
   // requestAnimationFrame(animate);
@@ -228,10 +237,14 @@ function animate() {
       rectangles.push(currentRectangle)
       currentRectangle = newRectangle(currentRectangle)
     }
+    if (!currentRectangle) {
+      calculateVertices()
+    }
   } else {
+    drawTriangles()
   }
 
-  setTimeout(animate, 100)
+  setTimeout(animate, 10)
 }
 
 animate();
