@@ -11,7 +11,7 @@ export class BlockData {
 
   public getBlock(x: number, z: number) {
     if (x < 0 || x >= this.width || z < 0 || z >= this.height) return null
-    return this.data[z][x]
+    return this.data[this.height - z - 1][x]
   }
 }
 
