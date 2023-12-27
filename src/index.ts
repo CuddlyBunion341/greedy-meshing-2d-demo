@@ -54,6 +54,7 @@ function drawTriangle(points: number[][]) {
   moveTo(points[0])
 
   for (const point of points) {
+    drawPoint(point[0], height - point[1])
     lineTo(point)
   }
 
