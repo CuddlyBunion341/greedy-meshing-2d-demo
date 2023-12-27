@@ -186,7 +186,7 @@ function startRectangle(x: number, z: number): Rectangle {
 
 const processed = new BlockData(width, height)
 
-function newRectangle(oldRectangle: Rectangle) {
+function newRectangle(oldRectangle: Rectangle): Rectangle {
   let x = 0;
   let z = 0;
 
@@ -199,24 +199,36 @@ function newRectangle(oldRectangle: Rectangle) {
     z = oldRectangle.z
   }
 
+  if (z >= height - 1) return null
+
   while (blocks.getBlock(x, z) === 0 || processed.getBlock(x, z)) {
+    // if (x >= width) {
+    //   x = 0
+    //   z++
+    // } else {
     x++
+    // }
   }
 
   return startRectangle(x, z)
 }
+
+let meshingDone = false
 
 function animate() {
   // requestAnimationFrame(animate);
   c.clearRect(0, 0, canvas.width, canvas.height);
   renderBlocks()
   rectangles.forEach(rect => drawRectangle(rect))
-  drawRectangle(currentRectangle)
 
-  const grew = attemptGrowRectangle(currentRectangle)
-  if (!grew) {
-    rectangles.push(currentRectangle)
-    currentRectangle = newRectangle(currentRectangle)
+  if (currentRectangle) {
+    drawRectangle(currentRectangle)
+    const grew = attemptGrowRectangle(currentRectangle)
+    if (!grew) {
+      rectangles.push(currentRectangle)
+      currentRectangle = newRectangle(currentRectangle)
+    }
+  } else {
   }
 
   setTimeout(animate, 100)
