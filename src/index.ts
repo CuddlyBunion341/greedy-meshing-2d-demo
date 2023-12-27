@@ -35,26 +35,14 @@ canvas.height = height * cellSize
 const triangles: number[][][] = []
 
 
-function doSth(x: number, z: number) {
-  c.strokeStyle = 'black'
-  c.lineWidth = 2
-  triangles.push(...getQuad(x, z, 1, 1))
-
-  for (let dx = 0; dx < 2; dx++) {
-    for (let dz = 0; dz < 2; dz++) {
-      drawPoint(x + dx, z + dz)
-    }
-  }
-}
-
 function drawTriangles() {
   for (let i = 0; i < triangles.length; i++) {
     const triangle = triangles[i]
     drawTriangle(triangle)
-    // if (i % 2 !== 0) {
-    //   c.fillStyle = 'rgba(0,0,0,0.5)'
-    //   c.fill()
-    // }
+    if (i % 2 !== 0) {
+      c.fillStyle = 'rgba(0,0,0,0.5)'
+      c.fill()
+    }
   }
 }
 
@@ -78,7 +66,7 @@ function drawTriangle(points: number[][]) {
 function getQuad(x: number, z: number, dx: number, dz: number) {
   return [
     [[x, z], [x + dx, z], [x + dx, z + dz]],
-    [[x, z], [x, z + dz], [x + 1, z + dz]]
+    [[x, z], [x, z + dz], [x + dx, z + dz]]
   ]
 }
 
@@ -188,9 +176,11 @@ function startRectangle(x: number, z: number): Rectangle {
 
 const processed = new BlockData(width, height)
 
-function newRectangle(oldRectangle: Rectangle): Rectangle {
+function newRectangle(original: Rectangle): Rectangle {
   let x = 0;
   let z = 0;
+
+  const oldRectangle = { ...original }
 
   // while (!blocks.getBlock(x, z)) {
   if (oldRectangle.x + oldRectangle.dx === width) {
@@ -216,7 +206,6 @@ function newRectangle(oldRectangle: Rectangle): Rectangle {
 }
 
 function calculateVertices() {
-  console.group(rectangles)
   rectangles.forEach((rectangle) => {
     const { x, z, dx, dz } = rectangle
 
@@ -224,7 +213,14 @@ function calculateVertices() {
   })
 }
 
+let stopped = false
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === ' ') stopped = !stopped
+})
+
 function animate() {
+  if (stopped) { setTimeout(animate, 10); return }
   // requestAnimationFrame(animate);
   c.clearRect(0, 0, canvas.width, canvas.height);
   renderBlocks()
@@ -240,11 +236,10 @@ function animate() {
     if (!currentRectangle) {
       calculateVertices()
     }
+    setTimeout(animate, 50)
   } else {
     drawTriangles()
   }
-
-  setTimeout(animate, 10)
 }
 
 animate();
