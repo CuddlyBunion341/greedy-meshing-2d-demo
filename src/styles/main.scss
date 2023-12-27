@@ -1,4 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+body, html {
+  width: 100%;
+  height: 100%;
+}
 
 * {
   box-sizing: border-box;
@@ -6,6 +9,14 @@
   padding: 0;
 }
 
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #1c1c1c;
+}
+
 canvas {
-  box-shadow: rgba(47, 108, 169, 0.2) 0px 8px 24px;
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
