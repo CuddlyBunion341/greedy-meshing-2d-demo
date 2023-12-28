@@ -1,4 +1,5 @@
 export type Area = {
+  blockId: number
   x: number
   y: number
   w: number
