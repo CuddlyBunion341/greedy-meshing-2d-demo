@@ -36,3 +36,31 @@ export function drawTriangle(triangle: Triangle) {
   c.lineWidth = 1
   c.stroke()
 }
+
+export function setColor(color: string) {
+  c.strokeStyle = color
+  c.fillStyle = color
+}
+
+export function setLineWidth(width: number) {
+  c.lineWidth = width
+}
+
+export function outlineRect(x: number, y: number, w: number, h: number) {
+  c.strokeRect(x * cellSize, y * cellSize, w * cellSize, y * cellSize)
+  c.stroke()
+}
+
+export function fillSquare(x: number, y: number) {
+  c.fillRect(x * cellSize, y * cellSize, cellSize, cellSize)
+}
+
+export function buildRenderLoop(callback: () => void) {
+  const loop = () => {
+    c.clearRect(0, 0, cellSize * width, cellSize * height)
+    callback()
+    setTimeout(loop, 500)
+  }
+
+  return loop
+}

@@ -3,6 +3,22 @@ export class DataMatrix<T> {
   public readonly height: number
   public readonly dataList: T[]
 
+  static from(data: any[][]) {
+    const height = data.length
+    const width = data[0].length
+    const value = data[0][0]
+
+    const instance = new DataMatrix(width, height, value)
+
+    for (let x = 0; x < width; x++) {
+      for (let y = 0; y < height; y++) {
+        instance.setValue(x, y, data[y][x])
+      }
+    }
+
+    return instance
+  }
+
   constructor(width: number, height: number, initialValue: T) {
     this.width = width
     this.height = height
