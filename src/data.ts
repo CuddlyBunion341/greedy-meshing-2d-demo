@@ -12,7 +12,7 @@ export class DataMatrix<T> {
 
     for (let x = 0; x < width; x++) {
       for (let y = 0; y < height; y++) {
-        instance.setValue(x, y, data[y][x])
+        if (!instance.setValue(x, height - y - 1, data[y][x])) throw new Error('err setting block')
       }
     }
 
@@ -30,6 +30,7 @@ export class DataMatrix<T> {
   }
 
   public getValue(x: number, y: number) {
+    if (x < 0 || x >= this.width || y < 0 || y >= this.height) return null
     return this.dataList[this.getIndex(x, y)]
   }
 
@@ -41,5 +42,3 @@ export class DataMatrix<T> {
     return true
   }
 }
-
-export const blockList = new DataMatrix<number>(8, 6, 0)

@@ -41,9 +41,11 @@ export class GreedyMesher {
       this.areas.push(this.currentArea)
       this.updateProcessed()
       const newArea = this.getNextArea()
-      if (!(this.currentArea = newArea)) {
+      if (!newArea) {
+        this.areas.push(this.currentArea)
         this.generateTriangles()
       }
+      this.currentArea = newArea
     }
   }
 
@@ -81,14 +83,38 @@ export class GreedyMesher {
   private updateProcessed() {
     const { x, y, w, h } = this.currentArea
 
-    for (let xi = x; xi < xi + w; xi++) {
-      for (let yi = y; yi < yi + h; yi++) {
+    for (let xi = x; xi <= x + w - 1; xi++) {
+      for (let yi = y; yi <= y + h - 1; yi++) {
         this.processed.setValue(xi, yi, true)
       }
     }
   }
 
-  private getNextArea(): GrowableArea | null { return null }
+  private getNextArea(): GrowableArea | null {
+    const lastArea = this.currentArea
+
+    let x = 0
+    let y = 0
+
+    if (lastArea) y = lastArea.y
+
+    while (!this.blockData.getValue(x, y) || this.processed.getValue(x, y)) {
+      if (x >= this.width && y >= this.height) return null
+
+      if (x >= this.width) {
+        x = 0
+        y++
+      } else {
+        x++
+      }
+    }
+
+    return {
+      x, y, w: 1, h: 1,
+      blockId: this.blockData.getValue(x, y),
+      canGrowX: true, canGrowY: true
+    }
+  }
 
   private generateTriangles() {
     this.triangles = this.areas.reduce((triangles, area) => {
@@ -96,10 +122,10 @@ export class GreedyMesher {
 
       const areaTriangles: Triangle[] = [
         [{ x: x, y: y }, { x: x + w, y: y }, { x: x + w, y: y + h }],
-        [{ x: x, y: y + h }, { x: x + w, y: y + h }, { x: x + w, y: y }],
+        [{ x: x, y: y }, { x: x, y: y + h }, { x: x + w, y: y + h }],
       ]
 
-      return [...triangles, areaTriangles]
+      return [...triangles, ...areaTriangles]
     }, [])
   }
 }

@@ -9,8 +9,8 @@ export class DrawableMesher extends GreedyMesher {
   }
 
   step() {
-    super.step()
     this.render()
+    super.step()
   }
 
   render() {
